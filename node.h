@@ -6,22 +6,33 @@ using namespace std;
 
 class Node{
     public:
-    vector<int> trench; // 11 12 13 are the recesses 11 is on top of 4, 12 is on 6, and 13 on 8
-    //vector<int> recesses;
+    vector<int> trench;
+    vector<int> recesses;
     int gn; // Cost from start node
     int hn; // Heuristic cost to goal
     int fn; // Total cost (g + h)
     Node* parent;
     int depth;
 
-    Node(vector<int> t, int g, int h, int f, Node* p, int d){
+    Node(vector<int> t, int g, int h, Node* p, int d){
         trench = t;
         //recesses = r;
         gn = g;
         hn = h;
-        fn = f;
+        fn = g + h;
         parent = p;
         depth = d;
+    }
+
+    Node(){
+        depth = 0;
+        for(int i = 0; i < 9; i++){
+            if(i < 9){
+                trench[i] = i+1;
+            } else {
+                trench[i] = 0;
+            }
+        }
     }
 
     void setTrench(vector<int> t){
@@ -91,6 +102,26 @@ class Node{
             }
         }
         return 0;
+    }
+
+    vector<int> findEmpty(){
+        vector<int> indexes;
+        for(int i = 0; i < 9; i++){
+            if(trench[i] == 0){
+                indexes.push_back(i);
+            }
+        }
+        return indexes;
+    }
+
+    vector<int> findEmptyRecess(){
+        vector<int> indexes;
+        for(int i = 10; i < 13; i++){
+            if(trench[i] == 0){
+                indexes.push_back(i);
+            }
+        }
+        return indexes;
     }
 
     bool compareNodes(Node a){
