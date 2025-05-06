@@ -21,12 +21,10 @@ public:
   Algorithm(){
     heuristic = 1; // default being UCS
   }
-
-
-    //general_search(problem, QUEUEING-FUNCTION){
+  //general_search(problem, QUEUEING-FUNCTION){
   Node* solve(Node* input){
-    int nodes_traversed = 0;
-    int max_queue_size = 0;
+    int nodesTraversed = 0;
+    int queueSize = 0;
 
     //nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))
       queue.push_back(input);
@@ -36,51 +34,49 @@ public:
         // node = REMOVE-FRONT(nodes)  
         Node* current = queue.at(queue.size() - 1);
         queue.pop_back();
-        
-        nodes_traversed++;
+        nodesTraversed++;
 
-        if(max_queue_size < queue.size()){
-          max_queue_size = queue.size();
+        if(queueSize < queue.size()){
+          queueSize = queue.size();
         }
         //  if problem.GOAL-TEST(node.STATE) succeeds then return node
         if(current->isGoal()){
           cout << "Heuristic: " << heuristic << endl;
           cout << "Depth: " << current->depth << endl;
-          cout << "Nodes checked:" << nodes_traversed << endl;
-          cout << "Max queue size: " << max_queue_size << endl;
+          cout << "Nodes checked:" << nodesTraversed << endl;
+          cout << "Max queue size: " << queueSize << endl;
           return current;
         }
-
         visited.push_back(current);
         //nodes = QUEUEING-FUNCTION(nodes, EXPAND(node, problem.OPERATORS))
-        search_ways(current);    
+        searchWays(current);    
       }
-      
     //if EMPTY(nodes) then return "failure"
     cout << "FAILURE" << endl;
     return nullptr;
   };  
 
   // 1 = UCS, 2 = MANHATTAN DISTANCE, 3 = MISPLACED TILES
-  void search_ways(Node * input){
+  void searchWays(Node * input){
     
     vector<Node *> children = createChildren(input);
     //UCS
     if(heuristic == 1){ // h(n) is all 0 and cost to go to any path doesn't rly make much difference. 
-      
-    }
-
-    //manhattan distance
-    else if(heuristic == 2){
       for(int i = 0; i < children.size(); i++){
-
+        queue.insert(queue.begin(), children[i]);
       }
     }
 
-    //misplaced tile heuristic
-    else{
-      for(int i = 0; i < children.size(); i++){
+    //misplaced tile
+    else if(heuristic == 2 || heuristic == 3){
+      for(int i = 0; i < children.size(); i++){ // putting the children in terms of increasing hn
+        int j = 0;
+        while(j < queue.size() && queue[j]->getHn() > children[i]->getHn()){
+          j++;
+        }
+        vector<Node*>::iterator it = queue.begin() + j;
 
+        queue.insert(it, children[i]);
       }
     }
   }
