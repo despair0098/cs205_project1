@@ -11,11 +11,10 @@ using namespace std;
 class Algorithm {
 private:
  
- //queue of nodes to visit (last one is next in line), ordered in rank of heuristic
+ //queue of nodes to visit, ordered in rank of heuristic
   vector<Node*> queue;
-  vector<Node*> visited;   // already visited nodes (vector)
+  vector<Node*> visited;   // nodes that are already visited (vector)
   Node goal = Node(); // goal state being 1 2 3 4 5 6 7 8 9 0 for 10 trench tiles and 0 0 0 for recesses
-
   int heuristic;
 
 public:
@@ -45,8 +44,10 @@ public:
         }
         //  if problem.GOAL-TEST(node.STATE) succeeds then return node
         if(current->isGoal()){
-          cout << "HEURISTIC: " << heuristic << endl;
-          cout << "DEPTH: " << current->depth <<endl <<   "NODES CHECKED :" << nodes_traversed << endl << "MAX QUEUE SIZE: " << max_queue_size << endl;
+          cout << "Heuristic: " << heuristic << endl;
+          cout << "Depth: " << current->depth << endl;
+          cout << "Nodes checked:" << nodes_traversed << endl;
+          cout << "Max queue size: " << max_queue_size << endl;
           return current;
         }
 
@@ -56,7 +57,7 @@ public:
       }
       
     //if EMPTY(nodes) then return "failure"
-    cout << "FAILURE";
+    cout << "FAILURE" << endl;
     return nullptr;
   };  
 
@@ -65,14 +66,14 @@ public:
     
     vector<Node *> children = createChildren(input);
     //UCS
-    if(heuristic == 1){
+    if(heuristic == 1){ // h(n) is all 0 and cost to go to any path doesn't rly make much difference. 
       
     }
 
     //manhattan distance
     else if(heuristic == 2){
       for(int i = 0; i < children.size(); i++){
-        
+
       }
     }
 
@@ -86,7 +87,9 @@ public:
 
 
   int calculateHeuristic(vector<int>& trench) {
-    if (heuristic == 1) return 0;
+    if (heuristic == 1) {
+      return 0;
+    }
     int h = 0;
     for (int i = 0; i < 13; i++) {
         if (trench[i] == 0) {
@@ -94,13 +97,29 @@ public:
         }
         // misplaced tiles
         if (heuristic == 2) {
+          if(i < 10){
             if (trench[i] != i+1){
                 h++;
             }
+          } else {
+            if (trench[i] != 0){
+              h++;
+            }
+          }
         // manhattan distance
         } else if (heuristic == 3) {
-            int goalPos = trench[i] - 1;
+          int goalPos = trench[i] - 1;
+          if(i < 10){
             h += abs(i - goalPos);
+          } else {
+            if(i == 10 && trench[i] != 0){
+              h += (4 - goalPos); // because it's on top of 4th tile and index of the 4th is 3. +1 for making recess being extra
+            } else if(i == 11 && trench[i] != 0){
+              h += (6 - goalPos);
+            } else if(i == 12 && trench[i] != 0){
+              h += (8 - goalPos);
+            }
+          }
         }
     }
     return h;
@@ -183,7 +202,6 @@ public:
 
   //checking for repeated children
   vector<Node*> children2;
-
     for(int i = 0; i < children.size(); i++ ){
       bool repeated = false;
         for(int j = 0; j < visited.size();j++){
