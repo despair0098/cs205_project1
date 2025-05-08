@@ -7,7 +7,7 @@ using namespace std;
 class Node{
     public:
     vector<int> trench;
-    vector<int> recesses;
+    //vector<int> recesses;
     int gn; // Cost from start node
     int hn; // Heuristic cost to goal
     int fn; // Total cost (g + h)
@@ -26,7 +26,9 @@ class Node{
 
     Node(){
         depth = 0;
-        for(int i = 0; i < 9; i++){
+        trench.resize(13);
+        // answer: 1 2 3 4 5 6 7 8 9 0 0 0 0
+        for(int i = 0; i < 13; i++){
             if(i < 9){
                 trench[i] = i+1;
             } else {
@@ -91,7 +93,7 @@ class Node{
         return depth;
     }
 
-    int setDepth(int d){
+    void setDepth(int d){
         depth = d;
     }
     // input is the soldier's number so 1 is the sergent and 2-9 are the soldier. 
@@ -106,7 +108,7 @@ class Node{
 
     vector<int> findEmpty(){
         vector<int> indexes;
-        for(int i = 0; i < 9; i++){
+        for(int i = 0; i < 10; i++){
             if(trench[i] == 0){
                 indexes.push_back(i);
             }
@@ -124,8 +126,8 @@ class Node{
         return indexes;
     }
 
-    bool compareNodes(Node a){
-        vector<int> t = a.getTrench();
+    bool compareNodes(Node* a){
+        vector<int> t = a->getTrench();
         for(int i = 0; i < 13; i++){
             if(t[i] != trench[i]){
                 return false;
@@ -135,8 +137,9 @@ class Node{
     }
 
     bool isGoal(){
+        // answer: 1 2 3 4 5 6 7 8 9 0 0 0
         for(int i = 0; i < 13; i++){
-            if(i < 9){
+            if(i < 10){
                 if(trench[i] != i+1){
                     return false;
                 }

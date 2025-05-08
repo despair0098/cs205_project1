@@ -2,9 +2,9 @@
 #define ALGORITHM_H
 #include <iostream>
 #include <queue>
-#include "node.h"
 #include <vector>
 #include <cmath> 
+#include "node.h"
 
 using namespace std;
 
@@ -18,9 +18,12 @@ private:
   int heuristic;
 
 public:
+
+
   Algorithm(){
     heuristic = 1; // default being UCS
   }
+
   //general_search(problem, QUEUEING-FUNCTION){
   Node* solve(Node* input){
     int nodesTraversed = 0;
@@ -28,13 +31,17 @@ public:
 
     //nodes = MAKE-QUEUE(MAKE-NODE(problem.INITIAL-STATE))
       queue.push_back(input);
+      //cout << "Popping" << endl;
 
       //loop do 
-      while(queue.size() > 0){
+      //while(queue.size() > 0){
+      for(int i = 0; i < 2; i++){
         // node = REMOVE-FRONT(nodes)  
         Node* current = queue.at(queue.size() - 1);
         queue.pop_back();
         nodesTraversed++;
+        cout << "Queue size:" << queue.size() << endl;
+        //cout << nodesTraversed << endl;
 
         if(queueSize < queue.size()){
           queueSize = queue.size();
@@ -59,7 +66,7 @@ public:
   // 1 = UCS, 2 = MANHATTAN DISTANCE, 3 = MISPLACED TILES
   void searchWays(Node * input){
     
-    vector<Node *> children = createChildren(input);
+    vector<Node*> children = createChildren(input);
     //UCS
     if(heuristic == 1){ // h(n) is all 0 and cost to go to any path doesn't rly make much difference. 
       for(int i = 0; i < children.size(); i++){
@@ -67,15 +74,16 @@ public:
       }
     }
 
-    //misplaced tile
+    //misplaced tile and manhattan distance
     else if(heuristic == 2 || heuristic == 3){
       for(int i = 0; i < children.size(); i++){ // putting the children in terms of increasing hn
         int j = 0;
-        while(j < queue.size() && queue[j]->getHn() > children[i]->getHn()){
+        int queueFn = queue[j]->getGn() + queue[j]->getHn();
+        int childrenFn = children[i]->getGn() + children[i]->getHn();
+        while(j < queue.size() && queueFn > childrenFn){
           j++;
         }
         vector<Node*>::iterator it = queue.begin() + j;
-
         queue.insert(it, children[i]);
       }
     }
@@ -95,7 +103,7 @@ public:
         if (heuristic == 2) {
           if(i < 10){
             if (trench[i] != i+1){
-                h++;
+              h++;
             }
           } else {
             if (trench[i] != 0){
@@ -130,19 +138,21 @@ public:
     vector<int> emptyIndex = input->findEmpty();
     vector<int> emptyRecess = input->findEmptyRecess();
 
-    vector<int> newTrench = input->trench;
+    vector<int> newTrench = input->getTrench();
     for (int j = 0; j < emptyIndex.size(); ++j) {
         int index = emptyIndex[j];
-        if(newTrench[index-1] != 0 || index == 9){ // going left
-            swap(newTrench[index-1], newTrench[index]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+        if(index > 0 && newTrench[index-1] != 0){ // going left
+          vector<int> temp = newTrench;
+          swap(temp[index-1], temp[index]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         } 
                 
-        if(newTrench[index+1] != 0 || index == 0){// going right
-            swap(newTrench[index+1], newTrench[index]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+        if(index < 9 && newTrench[index+1] != 0){// going right
+          vector<int> temp = newTrench;
+          swap(temp[index+1], temp[index]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
     }
     
@@ -150,49 +160,54 @@ public:
     for (int i = 0; i < emptyRecess.size(); ++i) {
         int index = emptyRecess[i];
         if(index == 10 && newTrench[3] != 0){
-            swap(newTrench[10], newTrench[3]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+          swap(temp[10], temp[3]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
         if(index == 11 && newTrench[5] != 0){
-            swap(newTrench[11], newTrench[5]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+          swap(temp[11], temp[5]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
         if(index == 12 && newTrench[7] != 0){
-            swap(newTrench[12], newTrench[7]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+          swap(temp[12], temp[7]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
-
     }
     
     // Move from recesses to trench
     for (int i = 0; i < emptyIndex.size(); ++i) {
         int index = emptyIndex[i];
         if(index == 3 && newTrench[10] != 0){
-            swap(newTrench[10], newTrench[3]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+          swap(temp[10], temp[3]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
                 
         if(index == 5 && newTrench[11] != 0){
-            swap(newTrench[11], newTrench[5]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+          swap(temp[11], temp[5]);
+          Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+          children.push_back(child);
         }
         if(index == 7 && newTrench[12] != 0){
-            swap(newTrench[12], newTrench[7]);
-            Node* neighbor = new Node(newTrench, input->gn + 1, calculateHeuristic(newTrench), input, input->getDepth()+1);
-            children.push_back(neighbor);
+          vector<int> temp = newTrench;
+            swap(temp[12], temp[7]);
+            Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
+            children.push_back(child);
         }
     }
 
 
     /*
-    // Moves we can do: 
-    // move a man into an adjacent empty space, move a man into an empty recess, move a man from recess into an adjacent empty space in trench
-    // can be observed as moving the empty tile within the trench or move it to recess or recess to trench
+    Moves we can do: 
+    move a man into an adjacent empty space, move a man into an empty recess, move a man from recess into an adjacent empty space in trench
+    can be observed as moving the empty tile within the trench or move it to recess or recess to trench
 
     */
 
@@ -201,12 +216,12 @@ public:
     for(int i = 0; i < children.size(); i++ ){
       bool repeated = false;
         for(int j = 0; j < visited.size();j++){
-          if(visited[j]->compareNodes(*children[i])){
+          if(visited[j]->compareNodes(children[i])){
             repeated = true;
           }
         }
         if(repeated == false){
-          children2.push_back(children.at(i));
+          children2.push_back(children[i]);
         }
     }
     return children2;
