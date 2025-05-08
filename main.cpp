@@ -6,7 +6,8 @@
 using namespace std;
 // answer: 1 2 3 4 5 6 7 8 9 0 0 0 0
 //vector<int> test = {0, 2, 3, 4, 5, 6, 7, 8, 9, 1, 0 , 0, 0};
-vector<int> test = {2, 1, 3, 4, 5, 6, 7, 8, 9, 0, 0 , 0, 0}; // should give depth of 1
+vector<int> test = {1, 2, 3, 0, 5, 6, 7, 8, 9, 0, 4, 0, 0}; // should give depth of 1
+vector<int> goal = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0};
 
 int main(){
 
@@ -15,13 +16,18 @@ int main(){
     cout << "Hello2" << endl;
     Algorithm a = Algorithm();
     cout << "Hello3" << endl;
+    /*
+    Node* g = new Node(goal, 0, 0, nullptr, 0);
+    if(g->isGoal()){
+        cout << "its a goal state" << endl;
+    } else {
+        cout << "i hate my life" << endl;
+    }
+    */
+    
     Node* ans = a.solve(input);
     cout << "Hello4" << endl;
-    vector<int> trench = ans->getTrench();
-    for(int i = 0; i < trench.size(); i++){
-        cout << trench[i] << " ";
-    }
-    /*
+    
     while(ans->getParent() != nullptr){
         //prints the vector
         vector<int> trench = ans->getTrench();
@@ -33,7 +39,7 @@ int main(){
         ans = ans->getParent();
         cout << endl;
     }
-    */
+    
     
 
     cout << "Hello" << endl;

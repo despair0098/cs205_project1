@@ -26,7 +26,7 @@ class Node{
 
     Node(){
         depth = 0;
-        trench.resize(13);
+        trench.resize(14);
         // answer: 1 2 3 4 5 6 7 8 9 0 0 0 0
         for(int i = 0; i < 13; i++){
             if(i < 9){
@@ -38,7 +38,7 @@ class Node{
     }
 
     void setTrench(vector<int> t){
-        for(int i = 0; i < 13; i++){
+        for(int i = 0; i < 14; i++){
             trench[i] = t[i];
         }
     }
@@ -98,7 +98,7 @@ class Node{
     }
     // input is the soldier's number so 1 is the sergent and 2-9 are the soldier. 
     int findPosition(int num){
-        for(int i = 0; i < 13; i++){
+        for(int i = 0; i < 14; i++){
             if(trench[i] == num){
                 return i+1;
             }
@@ -137,9 +137,9 @@ class Node{
     }
 
     bool isGoal(){
-        // answer: 1 2 3 4 5 6 7 8 9 0 0 0
+        // answer: 1 2 3 4 5 6 7 8 9 0 0 0 0
         for(int i = 0; i < 13; i++){
-            if(i < 10){
+            if(i < 9){
                 if(trench[i] != i+1){
                     return false;
                 }
@@ -150,6 +150,15 @@ class Node{
             }
         }
         return true;
+    }
+
+    string printTrench(){
+        string t = "";
+        for(int i = 0; i < 13; i++){
+            t += to_string(trench[i]);
+            t += " ";
+        }
+        return t;
     }
 
 };

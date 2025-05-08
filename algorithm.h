@@ -34,14 +34,21 @@ public:
       //cout << "Popping" << endl;
 
       //loop do 
-      //while(queue.size() > 0){
-      for(int i = 0; i < 2; i++){
-        // node = REMOVE-FRONT(nodes)  
-        Node* current = queue.at(queue.size() - 1);
-        queue.pop_back();
+      while(queue.size() > 0){
+      //for(int i = 0; i < 2; i++){
+        // node = REMOVE-FRONT(nodes) 
+        for(int i = 0; i < queue.size(); i++){
+          cout << queue[i]->printTrench() << endl;
+        } 
+        Node* current = queue[0];
+        cout << "Current node: " << current->printTrench() << endl;
+        //queue.pop_back();
+        vector<Node*>::iterator it = queue.begin();
+        queue.erase(it);
         nodesTraversed++;
         cout << "Queue size:" << queue.size() << endl;
         //cout << nodesTraversed << endl;
+        
 
         if(queueSize < queue.size()){
           queueSize = queue.size();
