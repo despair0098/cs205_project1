@@ -7,7 +7,6 @@ using namespace std;
 class Node{
     public:
     vector<int> trench;
-    //vector<int> recesses;
     int gn; // Cost from start node
     int hn; // Heuristic cost to goal
     int fn; // Total cost (g + h)
@@ -16,14 +15,13 @@ class Node{
 
     Node(vector<int> t, int g, int h, Node* p, int d){
         trench = t;
-        //recesses = r;
         gn = g;
         hn = h;
         fn = g + h;
         parent = p;
         depth = d;
     }
-
+    // Creates a node that contains the goal state
     Node(){
         depth = 0;
         trench.resize(14);
@@ -46,17 +44,6 @@ class Node{
     vector<int> getTrench(){
         return trench;
     }
-    /*
-    void setRecesses(vector<int> r){
-        for(int i = 0; i < 3; i++){
-            recesses[i] = r[i];
-        }
-    }
-
-    vector<int> getRecesses(){
-        return recesses;
-    }
-    */
     void setGn(int g){
         gn = g;
     }
@@ -96,16 +83,7 @@ class Node{
     void setDepth(int d){
         depth = d;
     }
-    // input is the soldier's number so 1 is the sergent and 2-9 are the soldier. 
-    int findPosition(int num){
-        for(int i = 0; i < 14; i++){
-            if(trench[i] == num){
-                return i+1;
-            }
-        }
-        return 0;
-    }
-
+    // Finds the empty spaces inside the trench and return a vector of the index of them. 
     vector<int> findEmpty(){
         vector<int> indexes;
         for(int i = 0; i < 10; i++){
@@ -115,7 +93,7 @@ class Node{
         }
         return indexes;
     }
-
+    // Finds the empty spaces inside the recess and return a vector of the index of them.
     vector<int> findEmptyRecess(){
         vector<int> indexes;
         for(int i = 10; i < 13; i++){
@@ -125,7 +103,7 @@ class Node{
         }
         return indexes;
     }
-
+    //Compares the nodes to see if they are identical or not. 
     bool compareNodes(Node* a){
         vector<int> t = a->getTrench();
         for(int i = 0; i < 13; i++){
@@ -135,7 +113,7 @@ class Node{
         }
         return true;
     }
-
+    //Checks to see if the node is a goal state
     bool isGoal(){
         // answer: 1 2 3 4 5 6 7 8 9 0 0 0 0
         for(int i = 0; i < 13; i++){
@@ -151,7 +129,7 @@ class Node{
         }
         return true;
     }
-
+    //Prints out the trench in string
     string printTrench(){
         string t = "";
         for(int i = 0; i < 13; i++){

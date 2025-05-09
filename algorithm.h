@@ -2,7 +2,7 @@
 #define ALGORITHM_H
 #include <iostream>
 #include <vector>
-#include <cmath> 
+#include <chrono>
 #include "node.h"
 
 using namespace std;
@@ -37,34 +37,35 @@ public:
       //cout << "Popping" << endl;
 
       //loop do 
-      while(queue.size() > 0){ // adding timer condition
-      //for(int i = 0; i < 2; i++){
-        // node = REMOVE-FRONT(nodes) 
-        //for(int i = 0; i < queue.size(); i++){
-        //  cout << queue[i]->printTrench() << endl;
-        //  cout << "F(n)" << queue[i]->getFn() << endl;
-        //} 
+      //Timer starts to see how long it takes to execute. 
+      std::chrono::time_point<std::chrono::system_clock> start, middle, end;
+      start = chrono::system_clock::now();
+      while(queue.size() > 0){
+        // Accesses the node that has the lowest amount of cost(f(n)) in this case back of the vector. 
         Node* current = queue[queue.size()-1];
-        //cout << "Current node: " << current->printTrench() << endl;
+        // Removes the back of the vector
         queue.pop_back();
-        //vector<Node*>::iterator it = queue.begin();
-        //queue.erase(it);
         nodesTraversed++;
-        cout << "Nodes traversed: " << nodesTraversed << endl;
-        //cout << "Queue size:" << queue.size() << endl;
-        //cout << nodesTraversed << endl;
         
-
         if(queueSize < queue.size()){
           queueSize = queue.size();
         }
         //  if problem.GOAL-TEST(node.STATE) succeeds then return node
         if(current->isGoal()){
+          auto end = chrono::system_clock::now();
+          chrono::duration<double> totalTime = end - start;
           cout << "Heuristic: " << heuristic << endl;
           cout << "Depth: " << current->depth << endl;
           cout << "Nodes checked:" << nodesTraversed << endl;
           cout << "Max queue size: " << queueSize << endl;
+          cout << "Time elapsed: " << totalTime.count() << "s" << endl;
           return current;
+        }
+        //Checks to see if the program is running more than 30 minutes
+        middle = chrono::system_clock::now();
+        chrono::duration<double> elapsedTime = middle - start;
+        if(elapsedTime.count() > 1800.0){ // if its over 30 minutes
+          break;
         }
         visited.push_back(current);
         //nodes = QUEUEING-FUNCTION(nodes, EXPAND(node, problem.OPERATORS))
@@ -76,11 +77,10 @@ public:
   };  
 
   void searchWays(Node * input){
-    
     vector<Node*> children = createChildren(input);
-      for(int i = 0; i < children.size(); i++){ // putting the children in terms of decreasing fn
+      // putting the children in terms of decreasing f(n) so the lowest f(n) is at the end of the vector
+      for(int i = 0; i < children.size(); i++){
         int j = 0;
-        //int queueFn = queue[j]->getFn();
         int childrenFn = children[i]->getFn();
         while(j < queue.size() && queue[j]->getFn() > childrenFn){
           j++;
@@ -101,6 +101,7 @@ public:
             continue;
         }
         // misplaced tiles
+        //Counts how many spaces are not in the correct place including the space in the recess
         if (heuristic == 2) {
           if(i < 10){
             if (trench[i] != i+1){
@@ -117,10 +118,13 @@ public:
           if(i < 10){
             h += abs(i - goalPos);
           } else {
+            // because it's on top of 4th tile and index of the 4th is 3+1 for making recess being extra
             if(i == 10 && trench[i] != 0){
-              h += (4 - goalPos); // because it's on top of 4th tile and index of the 4th is 3. +1 for making recess being extra
+              h += (4 - goalPos);
+            // similar logic for the 4th tile but this is for 6th tile. 
             } else if(i == 11 && trench[i] != 0){
               h += (6 - goalPos);
+            // similar logic for the 4th tile but this is for 8th tile. 
             } else if(i == 12 && trench[i] != 0){
               h += (8 - goalPos);
             }
@@ -129,9 +133,7 @@ public:
     }
     return h;
   }
-
-
-  //returns a vector of nodes (children of the input node)
+  //returns a vector of nodes that was expanded from the input
   vector<Node*> createChildren(Node* input){
     vector<Node*> children;
     
@@ -160,18 +162,21 @@ public:
     // Move from trench to recesses
     for (int i = 0; i < emptyRecess.size(); ++i) {
         int index = emptyRecess[i];
+        // if the recess of the first space is empty but 4th space is not empty, soldier in 4th space can go up. 
         if(index == 10 && newTrench[3] != 0){
           vector<int> temp = newTrench;
           swap(temp[10], temp[3]);
           Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
           children.push_back(child);
         }
+        // if the recess of the second space is empty but 6th space is not empty, soldier in 6th space can go up. 
         if(index == 11 && newTrench[5] != 0){
           vector<int> temp = newTrench;
           swap(temp[11], temp[5]);
           Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
           children.push_back(child);
         }
+        // if the recess of the third space is empty but 8th space is not empty, soldier in 8th space can go up. 
         if(index == 12 && newTrench[7] != 0){
           vector<int> temp = newTrench;
           swap(temp[12], temp[7]);
@@ -183,19 +188,21 @@ public:
     // Move from recesses to trench
     for (int i = 0; i < emptyIndex.size(); ++i) {
         int index = emptyIndex[i];
+        // if the 4th space is empty but the first space of recess is not, then the soldier can move down
         if(index == 3 && newTrench[10] != 0){
           vector<int> temp = newTrench;
           swap(temp[10], temp[3]);
           Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
           children.push_back(child);
         }
-                
+        // if the 6th space is empty but the second space of recess is not, then the soldier can move down       
         if(index == 5 && newTrench[11] != 0){
           vector<int> temp = newTrench;
           swap(temp[11], temp[5]);
           Node* child = new Node(temp, input->getGn() + 1, calculateHeuristic(temp), input, input->getDepth()+1);
           children.push_back(child);
         }
+        // if the 8th space is empty but the third space of recess is not, then the soldier can move down
         if(index == 7 && newTrench[12] != 0){
           vector<int> temp = newTrench;
             swap(temp[12], temp[7]);
@@ -203,8 +210,6 @@ public:
             children.push_back(child);
         }
     }
-
-
     /*
     Moves we can do: 
     move a man into an adjacent empty space, move a man into an empty recess, move a man from recess into an adjacent empty space in trench
