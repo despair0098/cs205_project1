@@ -1,7 +1,6 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 #include <iostream>
-#include <queue>
 #include <vector>
 #include <cmath> 
 #include "node.h"
@@ -24,6 +23,10 @@ public:
     heuristic = 1; // default being UCS
   }
 
+  void setHeuristic(int h){
+    heuristic = h;
+  }
+
   //general_search(problem, QUEUEING-FUNCTION){
   Node* solve(Node* input){
     int nodesTraversed = 0;
@@ -34,19 +37,21 @@ public:
       //cout << "Popping" << endl;
 
       //loop do 
-      while(queue.size() > 0){
+      while(queue.size() > 0){ // adding timer condition
       //for(int i = 0; i < 2; i++){
         // node = REMOVE-FRONT(nodes) 
-        for(int i = 0; i < queue.size(); i++){
-          cout << queue[i]->printTrench() << endl;
-        } 
-        Node* current = queue[0];
-        cout << "Current node: " << current->printTrench() << endl;
-        //queue.pop_back();
-        vector<Node*>::iterator it = queue.begin();
-        queue.erase(it);
+        //for(int i = 0; i < queue.size(); i++){
+        //  cout << queue[i]->printTrench() << endl;
+        //  cout << "F(n)" << queue[i]->getFn() << endl;
+        //} 
+        Node* current = queue[queue.size()-1];
+        //cout << "Current node: " << current->printTrench() << endl;
+        queue.pop_back();
+        //vector<Node*>::iterator it = queue.begin();
+        //queue.erase(it);
         nodesTraversed++;
-        cout << "Queue size:" << queue.size() << endl;
+        cout << "Nodes traversed: " << nodesTraversed << endl;
+        //cout << "Queue size:" << queue.size() << endl;
         //cout << nodesTraversed << endl;
         
 
@@ -70,33 +75,22 @@ public:
     return nullptr;
   };  
 
-  // 1 = UCS, 2 = MANHATTAN DISTANCE, 3 = MISPLACED TILES
   void searchWays(Node * input){
     
     vector<Node*> children = createChildren(input);
-    //UCS
-    if(heuristic == 1){ // h(n) is all 0 and cost to go to any path doesn't rly make much difference. 
-      for(int i = 0; i < children.size(); i++){
-        queue.insert(queue.begin(), children[i]);
-      }
-    }
-
-    //misplaced tile and manhattan distance
-    else if(heuristic == 2 || heuristic == 3){
-      for(int i = 0; i < children.size(); i++){ // putting the children in terms of increasing hn
+      for(int i = 0; i < children.size(); i++){ // putting the children in terms of decreasing fn
         int j = 0;
-        int queueFn = queue[j]->getGn() + queue[j]->getHn();
-        int childrenFn = children[i]->getGn() + children[i]->getHn();
-        while(j < queue.size() && queueFn > childrenFn){
+        //int queueFn = queue[j]->getFn();
+        int childrenFn = children[i]->getFn();
+        while(j < queue.size() && queue[j]->getFn() > childrenFn){
           j++;
         }
         vector<Node*>::iterator it = queue.begin() + j;
         queue.insert(it, children[i]);
       }
-    }
   }
 
-
+    // 1 = UCS, 2 = Misplaced tiles, 3 = Manhattan distance
   int calculateHeuristic(vector<int>& trench) {
     if (heuristic == 1) {
       return 0;
